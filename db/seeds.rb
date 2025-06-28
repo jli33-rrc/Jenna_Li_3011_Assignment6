@@ -9,9 +9,11 @@
 #   end
 
 require 'faker'
+require "csv"
 
-# Clear existing products to prevent duplicates
+# Clear existing products and categories to prevent duplicates
 Product.delete_all
+Category.delete_all
 
 # Create 676 products
 676.times do
