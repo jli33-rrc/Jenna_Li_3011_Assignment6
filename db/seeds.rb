@@ -11,18 +11,44 @@
 require 'faker'
 require "csv"
 
-# Clear existing products and categories to prevent duplicates
+# Clear existing products and categories data to prevent duplicates
 Product.delete_all
 Category.delete_all
 
 # Create 676 products
-676.times do
+# 676.times do
+#     Product.create!(
+#         title: Faker::Commerce.product_name,
+#         description: Faker::Lorem.paragraph(sentence_count: 3),
+#         price: Faker::Commerce.price(range: 1.0..100.0),
+#         stock_quantity: Faker::Number.between(from: 1, to: 100)
+#     )
+# end
+# puts "Seeded 676 products."
+
+# Read CSV file
+csv_file = Rails.root.join("db/products.csv")
+csv_data = File.read(csv_file)
+
+# Parse CSV data
+products = CSV.parse(csv_data, headers: true)
+
+# Hash to keep track of created categories
+categories = {}
+
+products.each do |product|
+    # Find or create category
+    category_name = product["category"]
+    category = categories[category_name] ||= Category.find_or_create_by!(name: category_name)
+
+    # Create product
     Product.create!(
-        title: Faker::Commerce.product_name,
-        description: Faker::Lorem.paragraph(sentence_count: 3),
-        price: Faker::Commerce.price(range: 1.0..100.0),
-        stock_quantity: Faker::Number.between(from: 1, to: 100)
+        title: product["name"],
+        description: product["description"],
+        price: product["price"].to_f,
+        stock_quantity: product["stock quantity"].to_i,
+        category: category
     )
 end
 
-puts "Seeded 676 products."
+puts "Seeded #{Category.count} categories and #{Product.count} products."
